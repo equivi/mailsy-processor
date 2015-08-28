@@ -2,10 +2,8 @@ package com.equivi.mailsy.processor.process;
 
 import com.equivi.mailsy.data.dao.CampaignDao;
 import com.equivi.mailsy.data.dao.CampaignSubscriberGroupDao;
-import com.equivi.mailsy.data.entity.CampaignEntity;
-import com.equivi.mailsy.data.entity.CampaignSubscriberGroupEntity;
-import com.equivi.mailsy.data.entity.QCampaignSubscriberGroupEntity;
-import com.equivi.mailsy.data.entity.SubscriberContactEntity;
+import com.equivi.mailsy.data.dao.SubscriberContactDao;
+import com.equivi.mailsy.data.entity.*;
 import com.equivi.mailsy.processor.process.dto.CampaignEmailObject;
 import com.google.common.collect.Lists;
 import com.mysema.query.BooleanBuilder;
@@ -24,6 +22,9 @@ public class EmailChannelProcessor implements Processor {
 
     @Autowired
     private CampaignSubscriberGroupDao campaignSubscriberGroupDao;
+
+    @Autowired
+    private SubscriberContactDao subscriberContactDao;
 
     @Autowired
     private CampaignDao campaignDao;
@@ -55,16 +56,24 @@ public class EmailChannelProcessor implements Processor {
             campaignEmailObject.setEmailContent(campaignSubscriberGroupEntity.getCampaignEntity().getEmailContent());
             campaignEmailObject.setEmailFrom(campaignSubscriberGroupEntity.getCampaignEntity().getEmailFrom());
 
-            campaignEmailObject.setEmailList(buildEmailList(campaignSubscriberGroupEntity.getSubscriberGroupEntity().getSubscribeContactEntityList()));
+            campaignEmailObject.setEmailList(buildEmailList(campaignSubscriberGroupEntity.getSubscriberGroupEntity()));
             campaignEmailObjects.add(campaignEmailObject);
         }
 
         return campaignEmailObjects;
     }
 
-    private List<String> buildEmailList(List<SubscriberContactEntity> subscribeContactEntityList) {
+    private List<String> buildEmailList(SubscriberGroupEntity subscriberGroupEntity) {
 
-        return null;
+        List<SubscriberContactEntity> subscriberContactEntityList = Lists.newArrayList(subscriberContactDao.readBySubscriberGroupEntity(subscriberGroupEntity));
+
+        List<String> subscriberList = new ArrayList<>();
+        if(!subscriberContactEntityList.isEmpty()){
+            for (SubscriberContactEntity subscriberContactEntity : subscriberContactEntityList) {
+                subscriberList.add(subscriberContactEntity.getContactEntity().getEmailAddress());
+            }
+        }
+        return subscriberList;
     }
 
     private Predicate getCampaignSubscriberGroupPredicate(CampaignEntity campaignEntity) {
@@ -73,6 +82,16 @@ public class EmailChannelProcessor implements Processor {
         BooleanBuilder booleanMerchantPredicateBuilder = new BooleanBuilder();
 
         booleanMerchantPredicateBuilder.or(qCampaignSubscriberGroupEntity.campaignEntity.eq(campaignEntity));
+
+        return booleanMerchantPredicateBuilder;
+    }
+
+    private Predicate getSubscriberContactList(SubscriberGroupEntity subscriberGroupEntity) {
+
+        QSubscriberContactEntity qSubscriberContactEntity = QSubscriberContactEntity.subscriberContactEntity;
+        BooleanBuilder booleanMerchantPredicateBuilder = new BooleanBuilder();
+
+        booleanMerchantPredicateBuilder.or(qSubscriberContactEntity.subscriberGroupEntity.eq(subscriberGroupEntity));
 
         return booleanMerchantPredicateBuilder;
     }

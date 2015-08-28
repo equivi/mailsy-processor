@@ -4,7 +4,6 @@ import com.equivi.mailsy.processor.process.EmailChannelProcessor;
 import org.apache.camel.model.dataformat.JsonLibrary;
 import org.apache.camel.spring.SpringRouteBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 
@@ -23,8 +22,8 @@ public class DeliveryChannelRouter extends SpringRouteBuilder {
     @Override
     public void configure() throws Exception {
         from("activemq:queue:Q_CONSOLE_TO_PROCESSOR")
-                .pipeline()
                 .convertBodyTo(Long.class)
+                .pipeline()
                 .process(emailChannelProcessor).marshal().json(JsonLibrary.Jackson).to("activemq:queue:Q_PROCESSOR_TO_EMAILCHANNEL");
     }
 }
