@@ -3,11 +3,13 @@ package com.equivi.mailsy.processor.process;
 import com.equivi.mailsy.data.dao.CampaignDao;
 import com.equivi.mailsy.data.dao.CampaignSubscriberGroupDao;
 import com.equivi.mailsy.data.dao.SubscriberContactDao;
-import com.equivi.mailsy.data.entity.*;
+import com.equivi.mailsy.data.entity.CampaignEntity;
+import com.equivi.mailsy.data.entity.CampaignSubscriberGroupEntity;
+import com.equivi.mailsy.data.entity.SubscriberContactEntity;
+import com.equivi.mailsy.data.entity.SubscriberGroupEntity;
 import com.equivi.mailsy.processor.process.dto.CampaignEmailObject;
+import com.equivi.mailsy.processor.process.dto.CampaignSubscriberList;
 import com.google.common.collect.Lists;
-import com.mysema.query.BooleanBuilder;
-import com.mysema.query.types.Predicate;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,18 +33,20 @@ public class EmailChannelProcessor implements Processor {
 
     @Override
     public void process(Exchange exchange) throws Exception {
-        System.out.println("Process :" + exchange.getIn().getMessageId());
-
         Long campaignId = (Long) exchange.getIn().getBody();
+
+        System.out.println("Process Campaign ID:" +campaignId);
 
         List<CampaignSubscriberGroupEntity> campaignSubscriberGroupEntities = getSubscriberGroupList(campaignId);
 
-        exchange.getOut().setBody(buildCampaignEmailObject(campaignSubscriberGroupEntities));
+        CampaignSubscriberList campaignSubscriberList = new CampaignSubscriberList();
+        campaignSubscriberList.setCampaignEmailObjectList(buildCampaignEmailObject(campaignSubscriberGroupEntities));
+        exchange.getOut().setBody(campaignSubscriberList);
     }
 
     private List<CampaignSubscriberGroupEntity> getSubscriberGroupList(Long campaignId) {
         CampaignEntity campaignEntity = campaignDao.findOne(campaignId);
-        List<CampaignSubscriberGroupEntity> campaignSubscriberGroupEntityList = Lists.newArrayList(campaignSubscriberGroupDao.findAll(getCampaignSubscriberGroupPredicate(campaignEntity)));
+        List<CampaignSubscriberGroupEntity> campaignSubscriberGroupEntityList = Lists.newArrayList(campaignSubscriberGroupDao.findByCampaignEntity(campaignEntity));
 
         return campaignSubscriberGroupEntityList;
     }
@@ -52,10 +56,12 @@ public class EmailChannelProcessor implements Processor {
         List<CampaignEmailObject> campaignEmailObjects = new ArrayList<>();
         for (CampaignSubscriberGroupEntity campaignSubscriberGroupEntity : campaignSubscriberGroupEntities) {
             CampaignEmailObject campaignEmailObject = new CampaignEmailObject();
+            campaignEmailObject.setCampaignId(campaignSubscriberGroupEntity.getCampaignEntity().getId());
+            campaignEmailObject.setCampaignUUID(campaignSubscriberGroupEntity.getCampaignEntity().getCampaignUUID());
             campaignEmailObject.setCampaignName(campaignSubscriberGroupEntity.getCampaignEntity().getCampaignName());
+            campaignEmailObject.setEmailSubject(campaignSubscriberGroupEntity.getCampaignEntity().getEmailSubject());
             campaignEmailObject.setEmailContent(campaignSubscriberGroupEntity.getCampaignEntity().getEmailContent());
             campaignEmailObject.setEmailFrom(campaignSubscriberGroupEntity.getCampaignEntity().getEmailFrom());
-
             campaignEmailObject.setEmailList(buildEmailList(campaignSubscriberGroupEntity.getSubscriberGroupEntity()));
             campaignEmailObjects.add(campaignEmailObject);
         }
@@ -75,25 +81,4 @@ public class EmailChannelProcessor implements Processor {
         }
         return subscriberList;
     }
-
-    private Predicate getCampaignSubscriberGroupPredicate(CampaignEntity campaignEntity) {
-
-        QCampaignSubscriberGroupEntity qCampaignSubscriberGroupEntity = QCampaignSubscriberGroupEntity.campaignSubscriberGroupEntity;
-        BooleanBuilder booleanMerchantPredicateBuilder = new BooleanBuilder();
-
-        booleanMerchantPredicateBuilder.or(qCampaignSubscriberGroupEntity.campaignEntity.eq(campaignEntity));
-
-        return booleanMerchantPredicateBuilder;
-    }
-
-    private Predicate getSubscriberContactList(SubscriberGroupEntity subscriberGroupEntity) {
-
-        QSubscriberContactEntity qSubscriberContactEntity = QSubscriberContactEntity.subscriberContactEntity;
-        BooleanBuilder booleanMerchantPredicateBuilder = new BooleanBuilder();
-
-        booleanMerchantPredicateBuilder.or(qSubscriberContactEntity.subscriberGroupEntity.eq(subscriberGroupEntity));
-
-        return booleanMerchantPredicateBuilder;
-    }
-
 }

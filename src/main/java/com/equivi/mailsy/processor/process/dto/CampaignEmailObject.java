@@ -1,6 +1,5 @@
 package com.equivi.mailsy.processor.process.dto;
 
-import com.equivi.mailsy.data.entity.CampaignStatus;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Date;
@@ -8,6 +7,10 @@ import java.util.List;
 
 @JsonInclude(value = JsonInclude.Include.NON_NULL)
 public class CampaignEmailObject {
+
+    private Long campaignId;
+
+    private String campaignUUID;
 
     private String campaignName;
 
@@ -20,6 +23,22 @@ public class CampaignEmailObject {
     private Date scheduledSendDate;
 
     private List<String> emailList;
+
+    public Long getCampaignId() {
+        return campaignId;
+    }
+
+    public void setCampaignId(Long campaignId) {
+        this.campaignId = campaignId;
+    }
+
+    public String getCampaignUUID() {
+        return campaignUUID;
+    }
+
+    public void setCampaignUUID(String campaignUUID) {
+        this.campaignUUID = campaignUUID;
+    }
 
     public String getCampaignName() {
         return campaignName;
