@@ -16,7 +16,7 @@
         <activemq.version>5.7.0</activemq.version>
         <activemq.camel.version>5.11.1</activemq.camel.version>
         <camel.version>2.15.2</camel.version>
-        <jackson.version>1.9.13</jackson.version>
+        <jackson.version>2.6.1</jackson.version>
         <maven-apt-plugin.version>1.0</maven-apt-plugin.version>
         <mysql.connector.version>5.1.34</mysql.connector.version>
         <mockito.version>1.9.5</mockito.version>
@@ -107,6 +107,28 @@
             <version>${activemq.version}</version>
         </dependency>
 
+        <!--Logger -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+        </dependency>
+
         <!--Unit test -->
         <dependency>
             <groupId>junit</groupId>
@@ -145,7 +167,7 @@
                 <version>2.2</version>
                 <configuration>
                     <path>/mailsy-processor</path>
-                    <port>7000</port>
+                    <port>7070</port>
                 </configuration>
             </plugin>
             <plugin>

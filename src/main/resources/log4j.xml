@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
+        <param name="file" value="/opt/demailer/logs/mailsy-processor.log"/>
+        <param name="Append" value="true"/>
+        <param name="Threshold" value="ALL"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%c] (%t:%X{user}) %m%n"/>
+        </layout>
+    </appender>
+
+    <appender name="CONSOLE" class="org.apache.log4j.ConsoleAppender">
+        <param name="Append" value="true"/>
+        <param name="Threshold" value="ALL"/>
+        <param name="DatePattern" value="'.'yyyy-MM-dd"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d %-5p [%c] (%t:%X{user}) %m%n"/>
+        </layout>
+    </appender>
+
+    <root>
+        <priority value="INFO"/>
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</log4j:configuration>

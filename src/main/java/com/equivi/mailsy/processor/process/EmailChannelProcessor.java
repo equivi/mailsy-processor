@@ -12,6 +12,8 @@ import com.equivi.mailsy.processor.process.dto.CampaignSubscriberList;
 import com.google.common.collect.Lists;
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -31,11 +33,14 @@ public class EmailChannelProcessor implements Processor {
     @Autowired
     private CampaignDao campaignDao;
 
+    private static final Logger LOG = LoggerFactory.getLogger(EmailChannelProcessor.class);
+
+
     @Override
     public void process(Exchange exchange) throws Exception {
         Long campaignId = (Long) exchange.getIn().getBody();
 
-        System.out.println("Process Campaign ID:" +campaignId);
+        LOG.info("Process Campaign ID:" +campaignId);
 
         List<CampaignSubscriberGroupEntity> campaignSubscriberGroupEntities = getSubscriberGroupList(campaignId);
 
